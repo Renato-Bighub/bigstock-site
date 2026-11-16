@@ -73,6 +73,61 @@ const responseSnippet = `{
   ]
 }`;
 
+// Imagens locais usadas no fundo animado da secção de API.
+const gridMotionImages = [
+  'hero-city', 'gallery-business', 'gallery-logistics', 'gallery-architecture', 'gallery-technology',
+  'gallery-ecommerce', 'gallery-lifestyle', 'gallery-team', 'gallery-nature', 'studio-office',
+  'studio-thumb-1', 'studio-thumb-2', 'studio-thumb-3', 'studio-thumb-4',
+].map((name) => `/images/${name}.jpg`);
+
+// Fundo "Grid Motion" (inspirado em reactbits.dev): grelha inclinada cujas linhas
+// deslizam em sentidos opostos conforme o rato, com uma deriva suave quando parado.
+function GridMotion({ images, rows = 4, columns = 7 }) {
+  const rootRef = useRef(null);
+  const rowRefs = useRef([]);
+
+  useEffect(() => {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return undefined;
+    const maxMove = 300;
+    const offsets = rowRefs.current.map(() => 0);
+    let ratio = 0.5;
+    let visible = true;
+    let frame = 0;
+    const onMove = (event) => { ratio = event.clientX / window.innerWidth; };
+    const observer = new IntersectionObserver(([entry]) => { visible = entry.isIntersecting; });
+    observer.observe(rootRef.current);
+    const tick = (time) => {
+      frame = window.requestAnimationFrame(tick);
+      if (!visible) return;
+      rowRefs.current.forEach((row, index) => {
+        if (!row) return;
+        const direction = index % 2 === 0 ? 1 : -1;
+        const drift = Math.sin(time / 2600 + index * 1.7) * 40;
+        const target = ((ratio * maxMove) - maxMove / 2 + drift) * direction;
+        offsets[index] += (target - offsets[index]) * (0.05 - index * 0.007);
+        row.style.transform = `translate3d(${offsets[index].toFixed(2)}px, 0, 0)`;
+      });
+    };
+    window.addEventListener('pointermove', onMove, { passive: true });
+    frame = window.requestAnimationFrame(tick);
+    return () => {
+      window.removeEventListener('pointermove', onMove);
+      window.cancelAnimationFrame(frame);
+      observer.disconnect();
+    };
+  }, []);
+
+  return <div className="grid-motion" ref={rootRef} aria-hidden="true">
+    <div className="grid-motion-grid">
+      {Array.from({ length: rows }, (_, row) => <div className="grid-motion-row" key={row} ref={(element) => { rowRefs.current[row] = element; }}>
+        {Array.from({ length: columns }, (_, column) => <div className="grid-motion-item" key={column}>
+          <img src={images[(row * 5 + column) % images.length]} alt="" loading="lazy" draggable="false" />
+        </div>)}
+      </div>)}
+    </div>
+  </div>;
+}
+
 function Photo({ photo, alt, className = '', loading = 'lazy' }) {
   const image = photography[photo];
   return <img
@@ -340,7 +395,7 @@ export default function App() {
         </div><div className="studio-thumbnails">{['studio-1', 'studio-2', 'studio-3', 'studio-4'].map((id) => <button key={id} onClick={() => { setAiPhoto(id); setAiInfo(false); }} className={aiPhoto === id ? 'selected' : ''} title={`Ver amostra ${id.slice(-1)}`}><Photo photo={id} alt="Exemplo visual de escritório e arquitetura" /></button>)}</div>
       </div></div></section>
 
-      <section className="api-section" id="api"><div className="container api-panel"><div className="api-content" data-reveal="left"><Eyebrow>PARA DEVELOPERS</Eyebrow><h2>Imagens na sua<br />plataforma.<br /><em>Sem complicações.</em></h2><p>Leve o acervo BIGstock para o seu produto, CMS ou construtor de websites através de uma integração moderna e segura.</p><ul className="check-list"><li><Check />Pesquisa e acesso ao catálogo</li><li><Check />Filtros inteligentes</li><li><Check />Autenticação por chave e quotas</li><li><Check />Documentação e integração planeadas</li></ul><ButtonArrow kind="white" href={LOGIN_URL}>Solicitar acesso à API</ButtonArrow></div>
+      <section className="api-section" id="api"><div className="container api-panel"><GridMotion images={gridMotionImages} /><div className="api-content" data-reveal="left"><Eyebrow>PARA DEVELOPERS</Eyebrow><h2>Imagens na sua<br />plataforma.<br /><em>Sem complicações.</em></h2><p>Leve o acervo BIGstock para o seu produto, CMS ou construtor de websites através de uma integração moderna e segura.</p><ul className="check-list"><li><Check />Pesquisa e acesso ao catálogo</li><li><Check />Filtros inteligentes</li><li><Check />Autenticação por chave e quotas</li><li><Check />Documentação e integração planeadas</li></ul><ButtonArrow kind="white" href={LOGIN_URL}>Solicitar acesso à API</ButtonArrow></div>
       <div className="code-card" data-reveal="right" data-delay="120"><div className="code-card-top"><div className="window-dots"><i /><i /><i /></div><span>API EXAMPLE · /v1/images/search</span><button onClick={copyApi} title="Copiar exemplo"><Copy size={14} /> Copiar</button></div><div className="code-tabs"><button className={apiTab === 'request' ? 'code-tab-active' : ''} onClick={() => setApiTab('request')}>Requisição cURL</button><button className={apiTab === 'response' ? 'code-tab-active' : ''} onClick={() => setApiTab('response')}>Resposta JSON</button></div><pre key={apiTab} className="code-fade"><code>{apiTab === 'request' ? requestSnippet : responseSnippet}</code></pre><div className="code-card-bottom"><CircleCheck size={15} /> Endpoint fictício usado apenas para ilustrar a integração</div></div></div></section>
 
       <section className="ecosystem-section"><div className="container ecosystem-layout"><div data-reveal><Eyebrow>FAZ PARTE DO ECOSSISTEMA BIGHUB</Eyebrow><h2>Nasce no universo<br /><em>BIGhub.</em></h2></div><div className="ecosystem-desc" data-reveal data-delay="140"><p>O BIGstock foi pensado para funcionar de forma independente ou integrado com as soluções BIGhub, unindo criação, tecnologia e produtividade num só ecossistema.</p><span>Conheça o ecossistema BIGhub:</span><div className="ecosystem-pills"><a href="https://www.bighub.tech/pt/" target="_blank" rel="noreferrer">BIGhub <ArrowUpRight size={12} /></a><a href="https://biglogistics.bighub.tech/" target="_blank" rel="noreferrer">BIGlogistics <ArrowUpRight size={12} /></a><a href="#api">BIGstock API <Code2 size={12} /></a></div></div></div></section>
