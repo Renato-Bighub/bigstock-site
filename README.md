@@ -65,7 +65,7 @@ BIGstock_React/
 7. **Administração:** importação do catálogo próprio, direitos, coleções, utilização e relatórios.
 8. **CRM e consentimento:** ligar o formulário a um sistema real, com RGPD e política de privacidade.
 
-A API mostrada no frontend utiliza o domínio **`api.bigstock.example`**, que é intencionalmente fictício. **Não introduza chaves secretas de fornecedores no código React nem em variáveis `VITE_`**: as chaves privadas devem residir no servidor.
+A API mostrada no frontend utiliza o domínio **`api.bigstock.tech`**, usado apenas como exemplo ilustrativo. **Não introduza chaves secretas de fornecedores no código React nem em variáveis `VITE_`**: as chaves privadas devem residir no servidor.
 
 ## Imagens
 

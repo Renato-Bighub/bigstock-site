@@ -317,7 +317,7 @@ export default function App() {
     return copy;
   });
 
-  const requestSnippet = `curl --request GET \\\n  --url 'https://api.bigstock.example/v1/images/search?q=${t('snippet.query')}' \\\n  --header 'Authorization: Bearer ${t('snippet.key')}' \\\n  --header 'Accept: application/json'`;
+  const requestSnippet = `curl --request GET \\\n  --url 'https://api.bigstock.tech/v1/images/search?q=${t('snippet.query')}' \\\n  --header 'Authorization: Bearer ${t('snippet.key')}' \\\n  --header 'Accept: application/json'`;
   const responseSnippet = `{
   "page": 1,
   "total": 12480,
